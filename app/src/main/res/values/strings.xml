@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Currency Exchanger</string>
+    <string name="title_home">Exchanger</string>
+    <string name="title_preferences">Preferences</string>
+    <string name="hint_date">Select a date</string>
+    <string name="currency_from">Exchange from currency: </string>
+    <string name="currency_to">Exchange to currency: </string>
+</resources>
