@@ -1,8 +1,16 @@
 <resources>
     <string name="app_name">Currency Exchanger</string>
-    <string name="title_home">Exchanger</string>
+    <string name="title_home">Exchange</string>
     <string name="title_preferences">Preferences</string>
     <string name="hint_date">Select a date</string>
-    <string name="currency_from">Exchange from currency: </string>
-    <string name="currency_to">Exchange to currency: </string>
+    <string name="hint_amount">Amount</string>
+    <string name="currency_from">Exchange: </string>
+    <string name="currency_to">To: </string>
+    <string name="description">Calculate between different currencies on chosen date</string>
+    <string name="exchange_button">Exchange</string>
+    <string name="show_all_currencies">Show all currencies</string>
+    <string name="convert_to">To: </string>
+
+    <!-- Font Awesome Icons -->
+    <string name="exchanger_icon">&#xf57d;</string>
 </resources>
