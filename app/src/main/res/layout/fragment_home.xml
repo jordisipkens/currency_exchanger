@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -11,66 +11,51 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_marginEnd="8dp">
 
         <RelativeLayout
             android:id="@+id/relativeLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="16dp">
+            android:padding="8dp" >
 
 
-            <TextView
-                android:id="@+id/original_currency_label"
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                android:text="Convert: "
-                android:layout_above="@+id/given_currency_layout" />
+            <RelativeLayout
+                android:id="@+id/base_currency_layout"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp">
 
-            <Spinner
-                android:id="@+id/original_currency"
-                style="?android:attr/textViewStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_above="@+id/given_currency_layout"
-                android:layout_marginEnd="16dp"
-                android:layout_toEndOf="@+id/original_currency_label"
-                android:background="@drawable/outline"
-                android:padding="8dp"
-                android:spinnerMode="dialog"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/black"
-                android:textColorHint="@android:color/darker_gray" />
+                <TextView
+                    android:id="@+id/original_currency_label"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:text="@string/convert_from" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/editTextNumberDecimal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_marginBottom="8dp"
-                android:layout_toEndOf="@+id/original_currency"
-                android:ems="10">
-
-                <EditText
-                    android:id="@+id/amount"
+                <Spinner
+                    android:id="@+id/base_currency"
+                    style="?android:attr/textViewStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:inputType="numberDecimal" />
-
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_toEndOf="@+id/original_currency_label"
+                    android:background="@drawable/outline"
+                    android:padding="8dp"
+                    android:spinnerMode="dialog"
+                    android:textAlignment="textEnd"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/black"
+                    android:textColorHint="@android:color/darker_gray" />
+            </RelativeLayout>
 
 
             <RelativeLayout
                 android:id="@+id/given_currency_layout"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:layout_below="@+id/editTextNumberDecimal"
-                android:layout_marginTop="16dp"
+                android:layout_below="@+id/base_currency_layout"
                 android:layout_marginBottom="8dp">
 
                 <TextView
@@ -83,23 +68,53 @@
                 <Spinner
                     android:id="@+id/given_currency"
                     style="?android:attr/textViewStyle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_toEndOf="@+id/given_label"
                     android:background="@drawable/outline"
                     android:padding="8dp"
                     android:spinnerMode="dialog"
+                    android:textAlignment="textEnd"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="@color/black"
                     android:textColorHint="@android:color/darker_gray" />
             </RelativeLayout>
 
+            <TextView
+                android:id="@+id/amount_label"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/given_currency_layout"
+                android:layout_alignParentStart="true"
+                android:paddingTop="24dp"
+                android:text="@string/convert_amount" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/editTextNumberDecimal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/given_currency_layout"
+                android:layout_marginBottom="8dp"
+                android:layout_toEndOf="@id/amount_label"
+                android:ems="10">
+
+                <EditText
+                    android:id="@+id/amount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="Amount"
+                    android:background="@android:color/transparent"
+                    android:inputType="numberDecimal"
+                    android:textAlignment="textEnd" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
             <CheckBox
                 android:id="@+id/convert_all_checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/given_currency_layout"
+                android:layout_below="@id/editTextNumberDecimal"
                 android:layout_alignParentEnd="true"
                 android:text="@string/show_all_currencies" />
 
@@ -122,11 +137,10 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/cardView"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
@@ -135,4 +149,4 @@
 
     </androidx.core.widget.NestedScrollView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

@@ -6,9 +6,4 @@
         android:icon="@drawable/ic_money_bill_wave_solid"
         android:title="@string/title_home" />
 
-    <item
-        android:id="@+id/navigation_notifications"
-        android:icon="@android:drawable/ic_menu_preferences"
-        android:title="@string/title_preferences" />
-
 </menu>
