@@ -2,6 +2,10 @@ package com.jordisipkens.currencyexchanger.network.objects;
 
 import androidx.annotation.NonNull;
 
+import com.jordisipkens.currencyexchanger.MyApplication;
+
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 public class CurrencyRates {
@@ -9,10 +13,13 @@ public class CurrencyRates {
     public String base;
     @NonNull
     public HashMap<String, Double> rates;
+    @NonNull
+    public Date date;
 
     public CurrencyRates(@NonNull String base, @NonNull HashMap<String, Double> rates) {
         this.base = base;
         this.rates = rates;
+        this.date = Calendar.getInstance(MyApplication.getInstance().getResources().getConfiguration().locale).getTime();
     }
 
     @NonNull
@@ -31,6 +38,15 @@ public class CurrencyRates {
 
     public void setRates(@NonNull HashMap<String, Double> rates) {
         this.rates = rates;
+    }
+
+    @NonNull
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(@NonNull Date date) {
+        this.date = date;
     }
 
     public Double calculateResult(@NonNull Double baseAmount, @NonNull String base, @NonNull String given) {

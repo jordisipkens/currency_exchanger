@@ -2,6 +2,7 @@ package com.jordisipkens.currencyexchanger.ui.home;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -13,10 +14,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,7 +33,10 @@ import com.jordisipkens.currencyexchanger.R;
 import com.jordisipkens.currencyexchanger.network.objects.CurrencyRates;
 import com.jordisipkens.currencyexchanger.ui.recycler_view.adapter.CurrencyRecyclerAdapter;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -42,6 +49,8 @@ public class HomeFragment extends Fragment {
     private final List<String> bCurrencies = new ArrayList<>();
     private final List<String> gCurrencies = new ArrayList<>();
     private CurrencyRecyclerAdapter recyclerAdapter;
+    private EditText datePicker;
+    private final Calendar myCalendar = Calendar.getInstance();
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
@@ -51,11 +60,15 @@ public class HomeFragment extends Fragment {
             homeViewModel.loadCurrencies();
         } catch (NetworkError networkError) {
             if (!tryAndLoadDataFromStorage())
-                showAlertDialog();
+                showAlertDialog(null);
+            else {
+                Toast.makeText(getActivity(), "Host is not available or there is no internet connection, application is still usable but limited", Toast.LENGTH_LONG).show();
+            }
         }
 
         setHomeViewObservers(root);
         setupViews(root);
+        setupDatePicker(root);
         return root;
     }
 
@@ -132,7 +145,11 @@ public class HomeFragment extends Fragment {
         showAllCheckBox.setChecked(homeViewModel.getShowAll().getValue());
         amountEditText.setText(String.format(locale, "%.2f", homeViewModel.getBaseAmount().getValue()));
 
-        exchangeButton.setOnClickListener(v -> setupRecyclerView(root));
+        exchangeButton.setOnClickListener(v -> {
+            setupRecyclerView(root);
+            if (!MyApplication.getInstance().isNetworkConnected())
+                Toast.makeText(getActivity(), "Host is not available or there is no internet connection, application is still usable but limited", Toast.LENGTH_LONG).show();
+        });
 
         amountEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -155,6 +172,38 @@ public class HomeFragment extends Fragment {
         });
 
         showAllCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> homeViewModel.getShowAll().setValue(isChecked));
+    }
+
+    private void setupDatePicker(@NonNull View root) {
+        // Create a datePicker for the editText
+        datePicker = (EditText) root.findViewById(R.id.date_picker);
+        DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                Date cached = myCalendar.getTime(); // only used when there is no internet connection;
+                myCalendar.set(year, month, dayOfMonth);
+                updateLabel();
+                homeViewModel.getDate().setValue(myCalendar.getTime());
+
+                try {
+                    homeViewModel.loadCurrencies();
+                } catch (NetworkError networkError) {
+                    Toast.makeText(getActivity(), "Host is not available or there is no internet connection, application is still usable but limited.", Toast.LENGTH_LONG).show();
+                    myCalendar.setTime(cached); // Reset date to previous
+                    updateLabel();
+                }
+            }
+        };
+
+        datePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new DatePickerDialog(getActivity(), date, myCalendar.get(Calendar.YEAR),
+                        myCalendar.get(Calendar.MONTH), myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+            }
+        });
+
+        updateLabel();
     }
 
     private void setupRecyclerView(@NonNull View root) {
@@ -182,8 +231,10 @@ public class HomeFragment extends Fragment {
                     try {
                         homeViewModel.selectBaseCurrency(bCurrencies.get(position));
                     } catch (NetworkError networkError) {
-                        if (bCurrencies.size() == 0 && gCurrencies.size() == 0) // Only show error if you haven't loaded data in.
-                            showAlertDialog();
+                        if (bCurrencies.size() == 0 && gCurrencies.size() == 0) // Only show error if you haven't loaded or cached data.
+                            showAlertDialog(null);
+                        else
+                            Toast.makeText(getActivity(), "Host is not available or there is no internet connection, application is still usable but limited", Toast.LENGTH_LONG).show();
                     }
                     bCurrency.setSelection(position);
                 }
@@ -228,8 +279,8 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void showAlertDialog() {
-        new AlertDialog.Builder(getActivity()).setMessage("Can't connect to host, check your internet connection or try again later.").create().show();
+    private void showAlertDialog(@Nullable String message) {
+        new AlertDialog.Builder(getActivity()).setMessage(message == null ? "Can't connect to host, check your internet connection or try again later." : message).create().show();
     }
 
     private boolean tryAndLoadDataFromStorage() {
@@ -238,6 +289,8 @@ public class HomeFragment extends Fragment {
         if (currenciesString != null) {
             CurrencyRates rates = new Gson().fromJson(currenciesString, CurrencyRates.class);
             homeViewModel.getRates().setValue(rates);
+            homeViewModel.getDate().setValue(rates.getDate());
+            myCalendar.setTime(rates.getDate());
             return true;
         } else
             return false;
@@ -246,5 +299,12 @@ public class HomeFragment extends Fragment {
     private void saveToSharedPreferences() {
         SharedPreferences prefs = MyApplication.getInstance().getSharedPreferences("MyExchanger", Context.MODE_PRIVATE);
         prefs.edit().putString(CURRENCIES_KEY, new Gson().toJson(homeViewModel.getRates().getValue())).apply();
+    }
+
+    private void updateLabel() {
+        String dateFormat = "dd-MM-yyyy"; // Choose which format you want it to display
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.getDefault()); // use locale default
+
+        datePicker.setText(sdf.format(myCalendar.getTime())); // format chosen datePicker to a readable string
     }
 }

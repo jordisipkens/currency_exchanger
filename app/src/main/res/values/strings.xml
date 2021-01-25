@@ -11,7 +11,8 @@
     <string name="show_all_currencies">Show all currencies</string>
     <string name="convert_to">To: </string>
     <string name="convert_from">Convert: </string>
-    <string name="convert_amount">Amount: </string>
+    <string name="convert_amount">Amount</string>
+    <string name="latest">Today</string>
 
     <!-- Font Awesome Icons -->
     <string name="exchanger_icon">&#xf57d;</string>
