@@ -66,16 +66,15 @@ public class HomeFragment extends Fragment {
             bCurrencies.clear();
             gCurrencies.clear();
 
-            bCurrencies.addAll(currencyRates.rates.keySet());
-            gCurrencies.addAll(currencyRates.rates.keySet());
-
             // Somehow when the base is EUR, the EUR isn't included in the rates
             // With every other base, the base itself is included in the rates with value 1.
-            // However, make sure EUR is always on position 0 even if its already included;
-            if (!currencyRates.base.equals("EUR")) {
-                bCurrencies.remove("EUR");
+            // So include it when base = euro for offline use purposes
+            if (currencyRates.base.equals("EUR")) {
+                currencyRates.rates.put("EUR", 1.0);
             }
-            bCurrencies.add(0, "EUR");
+
+            bCurrencies.addAll(currencyRates.rates.keySet());
+            gCurrencies.addAll(currencyRates.rates.keySet());
 
             if (recyclerAdapter != null) {
                 recyclerAdapter.updateCurrencyRates(currencyRates);
