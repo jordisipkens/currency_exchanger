@@ -1,5 +1,6 @@
 package com.jordisipkens.currencyexchanger.ui.home;
 
+import android.accounts.NetworkErrorException;
 import android.app.AlertDialog;
 
 import androidx.annotation.NonNull;
@@ -7,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.android.volley.NetworkError;
 import com.jordisipkens.currencyexchanger.ExchangeSingleton;
 import com.jordisipkens.currencyexchanger.MyApplication;
 import com.jordisipkens.currencyexchanger.network.GsonRequest;
@@ -25,16 +27,15 @@ public class HomeViewModel extends ViewModel {
 
     public HomeViewModel() {
         super();
-        loadCurrencies();
         showAll.setValue(true);
         baseAmount.setValue(0.0);
     }
 
-    public LiveData<CurrencyRates> getRates() {
+    public MutableLiveData<CurrencyRates> getRates() {
         return rates;
     }
 
-    public void selectBaseCurrency(String currency) {
+    public void selectBaseCurrency(String currency) throws NetworkError {
         baseCurrency.setValue(currency);
         loadCurrencies();
     }
@@ -47,7 +48,6 @@ public class HomeViewModel extends ViewModel {
         return givenCurrency;
     }
 
-
     public MutableLiveData<Boolean> getShowAll() {
         return showAll;
     }
@@ -57,9 +57,9 @@ public class HomeViewModel extends ViewModel {
     }
 
     // If baseCurrency is not selected from the UI, use system base locale;
-    private void loadCurrencies() {
+    public void loadCurrencies() throws NetworkError {
         MyApplication application = MyApplication.getInstance();
-        if(application.isNetworkConnected()) { // check first if call is possible
+        if (application.isNetworkConnected()) { // check first if call is possible
             Locale current = application.getResources().getConfiguration().locale;
             String base = baseCurrency.getValue() != null ? baseCurrency.getValue() : Currency.getInstance(current).getCurrencyCode();
 
@@ -70,7 +70,7 @@ public class HomeViewModel extends ViewModel {
                 }
             }, null));
         } else {
-            new AlertDialog.Builder(application.getApplicationContext()).setMessage("Host is not available, check your internet connection or try again later").create();
+            throw (new NetworkError(new Throwable("Can't connect to host")));
         }
     }
 }

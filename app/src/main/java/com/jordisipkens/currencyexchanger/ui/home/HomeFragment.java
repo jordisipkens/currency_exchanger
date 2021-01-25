@@ -1,6 +1,9 @@
 package com.jordisipkens.currencyexchanger.ui.home;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,8 +22,11 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.NetworkError;
+import com.google.gson.Gson;
 import com.jordisipkens.currencyexchanger.MyApplication;
 import com.jordisipkens.currencyexchanger.R;
+import com.jordisipkens.currencyexchanger.network.objects.CurrencyRates;
 import com.jordisipkens.currencyexchanger.ui.recycler_view.adapter.CurrencyRecyclerAdapter;
 
 import java.util.ArrayList;
@@ -28,6 +34,8 @@ import java.util.List;
 import java.util.Locale;
 
 public class HomeFragment extends Fragment {
+    private static final String CURRENCIES_KEY = "currencies";
+
 
     private HomeViewModel homeViewModel;
     // Create two datasets for two different adapters
@@ -38,14 +46,23 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
+
+        try {
+            homeViewModel.loadCurrencies();
+        } catch (NetworkError networkError) {
+            if (!tryAndLoadDataFromStorage())
+                showAlertDialog();
+        }
+
         setHomeViewObservers(root);
         setupViews(root);
-
         return root;
     }
 
     private void setHomeViewObservers(@NonNull View root) {
         homeViewModel.getRates().observe(getViewLifecycleOwner(), currencyRates -> {
+            saveToSharedPreferences();
+
             bCurrencies.clear();
             gCurrencies.clear();
 
@@ -164,7 +181,12 @@ public class HomeFragment extends Fragment {
             bCurrency.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    homeViewModel.selectBaseCurrency(bCurrencies.get(position));
+                    try {
+                        homeViewModel.selectBaseCurrency(bCurrencies.get(position));
+                    } catch (NetworkError networkError) {
+                        if (bCurrencies.size() == 0 && gCurrencies.size() == 0) // Only show error if you haven't loaded data in.
+                            showAlertDialog();
+                    }
                     bCurrency.setSelection(position);
                 }
 
@@ -206,5 +228,25 @@ public class HomeFragment extends Fragment {
 
             gsCurrencies.setSelection(gCurrencies.indexOf(homeViewModel.getGivenCurrency().getValue()));
         }
+    }
+
+    private void showAlertDialog() {
+        new AlertDialog.Builder(getActivity()).setMessage("Can't connect to host, check your internet connection or try again later.").create().show();
+    }
+
+    private boolean tryAndLoadDataFromStorage() {
+        SharedPreferences prefs = MyApplication.getInstance().getSharedPreferences("MyExchanger", Context.MODE_PRIVATE);
+        String currenciesString = prefs.getString(CURRENCIES_KEY, null);
+        if (currenciesString != null) {
+            CurrencyRates rates = new Gson().fromJson(currenciesString, CurrencyRates.class);
+            homeViewModel.getRates().setValue(rates);
+            return true;
+        } else
+            return false;
+    }
+
+    private void saveToSharedPreferences() {
+        SharedPreferences prefs = MyApplication.getInstance().getSharedPreferences("MyExchanger", Context.MODE_PRIVATE);
+        prefs.edit().putString(CURRENCIES_KEY, new Gson().toJson(homeViewModel.getRates().getValue())).apply();
     }
 }
