@@ -76,7 +76,6 @@ public class HomeFragment extends Fragment {
                 bCurrencies.remove("EUR");
             }
             bCurrencies.add(0, "EUR");
-            gCurrencies.remove(currencyRates.base); // Remove the base, bit obvious that 5 USD = 5 USD for example;
 
             if (recyclerAdapter != null) {
                 recyclerAdapter.updateCurrencyRates(currencyRates);
