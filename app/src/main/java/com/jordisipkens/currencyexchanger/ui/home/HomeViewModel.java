@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.android.volley.NetworkError;
+import com.jordisipkens.currencyexchanger.BuildConfig;
 import com.jordisipkens.currencyexchanger.ExchangeSingleton;
 import com.jordisipkens.currencyexchanger.MyApplication;
 import com.jordisipkens.currencyexchanger.network.GsonRequest;
@@ -66,7 +67,7 @@ public class HomeViewModel extends ViewModel {
         if (application.isNetworkConnected()) { // check first if call is possible
             Locale current = application.getResources().getConfiguration().locale;
             String base = baseCurrency.getValue() != null ? baseCurrency.getValue() : Currency.getInstance(current).getCurrencyCode();
-            String url = "https://api.exchangeratesapi.io/" + (date.getValue() != null ? formatDate() : "latest") + "?base=" + base;
+            String url = BuildConfig.Base_URL + (date.getValue() != null ? formatDate() : "latest") + "?base=" + base;
 
             ExchangeSingleton.getInstance().getRequestQueue().add(new GsonRequest<>(
                     url, CurrencyRates.class, null, response -> {
