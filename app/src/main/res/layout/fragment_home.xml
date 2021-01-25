@@ -96,8 +96,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/convert_amount"
                     android:background="@android:color/transparent"
-                    android:inputType="numberDecimal"
-                    android:textAlignment="textEnd" />
+                    android:inputType="numberDecimal" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -119,8 +118,7 @@
                     android:focusable="false"
                     android:text="@string/latest"
                     android:hint="@string/hint_date"
-                    android:inputType="date"
-                    android:textAlignment="textEnd" />
+                    android:inputType="date"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 

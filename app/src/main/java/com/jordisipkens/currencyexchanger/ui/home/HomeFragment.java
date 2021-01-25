@@ -61,9 +61,6 @@ public class HomeFragment extends Fragment {
         } catch (NetworkError networkError) {
             if (!tryAndLoadDataFromStorage())
                 showAlertDialog(null);
-            else {
-                Toast.makeText(getActivity(), "Host is not available or there is no internet connection, application is still usable but limited", Toast.LENGTH_LONG).show();
-            }
         }
 
         setHomeViewObservers(root);
