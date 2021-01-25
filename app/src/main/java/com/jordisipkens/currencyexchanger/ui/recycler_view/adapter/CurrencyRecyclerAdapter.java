@@ -48,7 +48,10 @@ public class CurrencyRecyclerAdapter extends RecyclerView.Adapter<CurrencyRateVi
 
     @Override
     public int getItemCount() {
-        return showAll ? rates.rates.size() : 1;
+        if (rates != null)
+            return showAll ? rates.rates.size() : 1;
+        else
+            return 0;
     }
 
     public void updateCurrencyRates(@NonNull CurrencyRates rates) {
