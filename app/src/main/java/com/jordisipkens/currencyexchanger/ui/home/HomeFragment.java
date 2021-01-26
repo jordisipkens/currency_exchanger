@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
@@ -11,6 +12,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -56,12 +58,7 @@ public class HomeFragment extends Fragment {
         homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
 
-        try {
-            homeViewModel.loadCurrencies();
-        } catch (NetworkError networkError) {
-            if (!tryAndLoadDataFromStorage())
-                showAlertDialog(null);
-        }
+        checkForInitialInternet();
 
         setHomeViewObservers(root);
         setupViews(root);
@@ -123,6 +120,9 @@ public class HomeFragment extends Fragment {
             if (recyclerAdapter != null) {
                 recyclerAdapter.setShowAll(showAll);
             }
+            View rootView = getView();
+            if (rootView != null)
+                rootView.findViewById(R.id.given_currency_layout).setVisibility(showAll ? View.GONE : View.VISIBLE);
         });
 
         homeViewModel.getBaseAmount().observe(getViewLifecycleOwner(), baseAmount -> {
@@ -140,12 +140,20 @@ public class HomeFragment extends Fragment {
         Locale locale = MyApplication.getAppContext().getResources().getConfiguration().locale;
 
         showAllCheckBox.setChecked(homeViewModel.getShowAll().getValue());
-        amountEditText.setText(String.format(locale, "%.2f", homeViewModel.getBaseAmount().getValue()));
+        if (homeViewModel.getBaseAmount().getValue() != 0)
+            amountEditText.setText(String.format(locale, "%.2f", homeViewModel.getBaseAmount().getValue()));
 
         exchangeButton.setOnClickListener(v -> {
+            if (homeViewModel.getBaseAmount().getValue() == 0)
+                amountEditText.setText("0"); // Set value visually
+
             setupRecyclerView(root);
+
             if (!MyApplication.getInstance().isNetworkConnected())
                 Toast.makeText(getActivity(), "Host is not available or there is no internet connection, application is still usable but limited", Toast.LENGTH_LONG).show();
+
+            hideKeyboard(getActivity());
+
         });
 
         amountEditText.addTextChangedListener(new TextWatcher() {
@@ -228,10 +236,7 @@ public class HomeFragment extends Fragment {
                     try {
                         homeViewModel.selectBaseCurrency(bCurrencies.get(position));
                     } catch (NetworkError networkError) {
-                        if (bCurrencies.size() == 0 && gCurrencies.size() == 0) // Only show error if you haven't loaded or cached data.
-                            showAlertDialog(null);
-                        else
-                            Toast.makeText(getActivity(), "Host is not available or there is no internet connection, application is still usable but limited", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), "Host is not available or there is no internet connection, application is still usable but limited", Toast.LENGTH_LONG).show();
                     }
                     bCurrency.setSelection(position);
                 }
@@ -241,6 +246,8 @@ public class HomeFragment extends Fragment {
                     bCurrency.setSelection(0);
                 }
             });
+
+            bCurrencyAdapter.notifyDataSetChanged();// Sort arraylist before selecting value
 
             // Set position based on viewmodel data
             // If data not set yet, use base of the device through the api data.
@@ -272,12 +279,10 @@ public class HomeFragment extends Fragment {
                 }
             });
 
+
+            gCurrencyAdapter.notifyDataSetChanged(); // Sort arraylist before selecting value
             gsCurrencies.setSelection(gCurrencies.indexOf(homeViewModel.getGivenCurrency().getValue()));
         }
-    }
-
-    private void showAlertDialog(@Nullable String message) {
-        new AlertDialog.Builder(getActivity()).setMessage(message == null ? "Can't connect to host, check your internet connection or try again later." : message).create().show();
     }
 
     private boolean tryAndLoadDataFromStorage() {
@@ -303,5 +308,33 @@ public class HomeFragment extends Fragment {
         SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.getDefault()); // use locale default
 
         datePicker.setText(sdf.format(myCalendar.getTime())); // format chosen datePicker to a readable string
+    }
+
+    private void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = activity.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    private void checkForInitialInternet() {
+        try {
+            homeViewModel.loadCurrencies();
+        } catch (NetworkError networkError) {
+            if (!tryAndLoadDataFromStorage())
+                new AlertDialog.Builder(getActivity())
+                        .setMessage("Can't connect to host, check your internet connection or try again later.")
+                        .setCancelable(false)
+                        .setNeutralButton("Try again", (dialog, which) -> {
+                            dialog.dismiss();
+                            checkForInitialInternet();
+                        })
+                        .create()
+                        .show();
+        }
     }
 }

@@ -18,7 +18,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="8dp">
+            android:paddingBottom="8dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp">
 
 
             <RelativeLayout
@@ -33,13 +35,14 @@
                     android:layout_width="80dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
+                    android:paddingTop="8dp"
                     android:text="@string/convert_from" />
 
                 <Spinner
                     android:id="@+id/base_currency"
                     style="?android:attr/textViewStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="100dp"
                     android:layout_toEndOf="@+id/original_currency_label"
                     android:background="@drawable/outline"
                     android:padding="8dp"
@@ -63,13 +66,14 @@
                     android:layout_width="80dp"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
+                    android:paddingTop="8dp"
                     android:text="@string/convert_to" />
 
                 <Spinner
                     android:id="@+id/given_currency"
                     style="?android:attr/textViewStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="100dp"
                     android:layout_centerVertical="true"
                     android:layout_toEndOf="@+id/given_label"
                     android:background="@drawable/outline"
@@ -86,16 +90,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/given_currency_layout"
-                android:layout_marginBottom="8dp"
                 android:layout_alignParentStart="true"
+                android:layout_marginBottom="8dp"
                 android:ems="10">
 
                 <EditText
                     android:id="@+id/amount"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/convert_amount"
                     android:background="@android:color/transparent"
+                    android:hint="@string/convert_amount"
                     android:inputType="numberDecimal" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -116,9 +120,9 @@
                     android:background="@android:color/transparent"
                     android:clickable="true"
                     android:focusable="false"
-                    android:text="@string/latest"
                     android:hint="@string/hint_date"
-                    android:inputType="date"/>
+                    android:inputType="date"
+                    android:text="@string/latest" />
 
             </com.google.android.material.textfield.TextInputLayout>
 

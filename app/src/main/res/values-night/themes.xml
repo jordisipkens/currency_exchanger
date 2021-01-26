@@ -10,7 +10,28 @@
         <item name="colorSecondaryVariant">@color/teal_200</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/black</item>
         <!-- Customize your theme here. -->
+        <!-- Android namespace for backward compatibility -->
+        <item name="android:actionBarStyle">@style/ActionBarStyle</item>
+        <item name="actionBarStyle">@style/ActionBarStyle</item>
+        <item name="toolbarStyle">@style/CustomToolBarStyle</item>
+    </style>
+
+    <style name="ActionBarStyle" parent="@style/Widget.MaterialComponents.ActionBar.Primary">
+        <!-- Android namespace for backward compatibility -->
+        <item name="android:background">@color/purple_200</item>
+        <item name="background">@color/purple_200</item>
+
+        <item name="titleTextStyle">@style/TitleTextStyle</item>
+    </style>
+
+    <style name="TitleTextStyle"
+        parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="CustomToolBarStyle" parent="@style/Widget.AppCompat.Toolbar">
+        <item name="titleTextColor">@color/black</item>
     </style>
 </resources>

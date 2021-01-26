@@ -28,7 +28,7 @@ public class HomeViewModel extends ViewModel {
 
     public HomeViewModel() {
         super();
-        showAll.setValue(true);
+        showAll.setValue(false);
         baseAmount.setValue(0.0);
     }
 

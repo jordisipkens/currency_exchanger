@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Currency Exchanger</string>
-    <string name="title_home">Exchange</string>
+    <string name="title_home">Currency Exchanger</string>
     <string name="title_preferences">Preferences</string>
     <string name="hint_date">Select a date</string>
     <string name="hint_amount">Amount</string>
@@ -10,7 +10,7 @@
     <string name="exchange_button">Exchange</string>
     <string name="show_all_currencies">Show all currencies</string>
     <string name="convert_to">To: </string>
-    <string name="convert_from">Convert: </string>
+    <string name="convert_from">From: </string>
     <string name="convert_amount">Amount</string>
     <string name="latest">Today</string>
 

@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 
 import com.jordisipkens.currencyexchanger.MyApplication;
 
+import java.util.Comparator;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
@@ -27,5 +28,18 @@ public class CurrencyAdapter extends ArrayAdapter<String> {
         Currency cInstance = Currency.getInstance(item);
 
         return cInstance.getDisplayName(locale) + ": " + cInstance.getSymbol();
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        this.setNotifyOnChange(false);
+        this.sort(new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return o1.compareTo(o2);
+            }
+        });
+        this.setNotifyOnChange(true);
+        super.notifyDataSetChanged();
     }
 }
