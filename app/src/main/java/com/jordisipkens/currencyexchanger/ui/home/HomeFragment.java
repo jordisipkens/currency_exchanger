@@ -12,11 +12,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -90,9 +90,9 @@ public class HomeFragment extends Fragment {
                 recyclerAdapter.updateCurrencyRates(currencyRates);
             }
 
-            Spinner sCurrencies = root.findViewById(R.id.base_currency);
+            AutoCompleteTextView sCurrencies = root.findViewById(R.id.base_currency);
             CurrencyAdapter bAdapter = (CurrencyAdapter) sCurrencies.getAdapter();
-            Spinner gsCurrencies = root.findViewById(R.id.given_currency);
+            AutoCompleteTextView gsCurrencies = root.findViewById(R.id.given_currency);
             CurrencyAdapter gAdapter = (CurrencyAdapter) gsCurrencies.getAdapter();
 
             if (bAdapter == null || gAdapter == null) {
@@ -103,7 +103,8 @@ public class HomeFragment extends Fragment {
                 gAdapter.notifyDataSetChanged();
 
                 //Reselect if a value from before the current selected in the list is removed because it changed the base currency.
-                gsCurrencies.setSelection(gCurrencies.indexOf(homeViewModel.getGivenCurrency().getValue()));
+                int index = gCurrencies.indexOf(homeViewModel.getGivenCurrency().getValue());
+                gsCurrencies.setSelection(index != -1 ? index : 0);
             }
         });
 
@@ -218,34 +219,32 @@ public class HomeFragment extends Fragment {
         if (root != null && activity != null) {
             // Setup adapter for base currency
             CurrencyAdapter bCurrencyAdapter = new CurrencyAdapter(activity, android.R.layout.simple_spinner_item, bCurrencies);
-            bCurrencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            Spinner bCurrency = root.findViewById(R.id.base_currency); // base currency
+            AutoCompleteTextView bCurrency = root.findViewById(R.id.base_currency); // base currency
             bCurrency.setAdapter(bCurrencyAdapter);
 
-            bCurrency.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            bCurrency.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     try {
-                        homeViewModel.selectBaseCurrency(bCurrencies.get(position));
+                        Object item = parent.getItemAtPosition(position);
+                        if (item instanceof String) {
+                            homeViewModel.selectBaseCurrency((String) item);
+                        }
                     } catch (NetworkError networkError) {
                         if (bCurrencies.size() == 0 && gCurrencies.size() == 0) // Only show error if you haven't loaded or cached data.
                             showAlertDialog(null);
                         else
                             Toast.makeText(getActivity(), "Host is not available or there is no internet connection, application is still usable but limited", Toast.LENGTH_LONG).show();
                     }
-                    bCurrency.setSelection(position);
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    bCurrency.setSelection(0);
                 }
             });
 
             // Set position based on viewmodel data
             // If data not set yet, use base of the device through the api data.
             String base = homeViewModel.getBaseCurrency().getValue() != null ? homeViewModel.getBaseCurrency().getValue() : homeViewModel.getRates().getValue().base;
-            bCurrency.setSelection(bCurrencies.indexOf(base)); // Default it to the base currency
+            int indexOfBase = bCurrencies.indexOf(base);
+            if (bCurrency.length() > 0)
+                bCurrency.setSelection(indexOfBase != -1 ? indexOfBase : 0); // Default it to the base currency
         }
     }
 
@@ -255,24 +254,21 @@ public class HomeFragment extends Fragment {
         if (root != null && activity != null) {
             // Setup adapter for converting to given currency
             CurrencyAdapter gCurrencyAdapter = new CurrencyAdapter(activity, android.R.layout.simple_spinner_item, gCurrencies);
-            gCurrencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            Spinner gsCurrencies = root.findViewById(R.id.given_currency); // givenCurrency
+            AutoCompleteTextView gsCurrencies = root.findViewById(R.id.given_currency); // givenCurrency
             gsCurrencies.setAdapter(gCurrencyAdapter);
 
-            gsCurrencies.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            gsCurrencies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    homeViewModel.getGivenCurrency().setValue(gCurrencies.get(position));
-                    gsCurrencies.setSelection(position);
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    gsCurrencies.setSelection(0);
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Object item = parent.getItemAtPosition(position);
+                    if (item instanceof String) {
+                        homeViewModel.getGivenCurrency().setValue((String) item);
+                    }
                 }
             });
 
-            gsCurrencies.setSelection(gCurrencies.indexOf(homeViewModel.getGivenCurrency().getValue()));
+            int index = gCurrencies.indexOf(homeViewModel.getGivenCurrency().getValue());
+            gsCurrencies.setSelection(index != -1 ? index : 0);
         }
     }
 

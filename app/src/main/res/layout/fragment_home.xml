@@ -28,23 +28,15 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp">
 
-                <TextView
-                    android:id="@+id/original_currency_label"
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:text="@string/convert_from" />
-
-                <Spinner
+                <AutoCompleteTextView
                     android:id="@+id/base_currency"
                     style="?android:attr/textViewStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@+id/original_currency_label"
                     android:background="@drawable/outline"
+                    android:hint="@string/convert_from"
+                    android:completionThreshold="0"
                     android:padding="8dp"
-                    android:spinnerMode="dialog"
-                    android:textAlignment="textEnd"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="@color/black"
                     android:textColorHint="@android:color/darker_gray" />
@@ -58,24 +50,16 @@
                 android:layout_below="@+id/base_currency_layout"
                 android:layout_marginBottom="8dp">
 
-                <TextView
-                    android:id="@+id/given_label"
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:text="@string/convert_to" />
-
-                <Spinner
+                <AutoCompleteTextView
                     android:id="@+id/given_currency"
                     style="?android:attr/textViewStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:layout_toEndOf="@+id/given_label"
                     android:background="@drawable/outline"
+                    android:completionThreshold="0"
+                    android:hint="@string/convert_to"
                     android:padding="8dp"
-                    android:spinnerMode="dialog"
-                    android:textAlignment="textEnd"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="@color/black"
                     android:textColorHint="@android:color/darker_gray" />
@@ -86,16 +70,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/given_currency_layout"
-                android:layout_marginBottom="8dp"
                 android:layout_alignParentStart="true"
+                android:layout_marginBottom="8dp"
                 android:ems="10">
 
                 <EditText
                     android:id="@+id/amount"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/convert_amount"
                     android:background="@android:color/transparent"
+                    android:hint="@string/convert_amount"
                     android:inputType="numberDecimal" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -116,9 +100,9 @@
                     android:background="@android:color/transparent"
                     android:clickable="true"
                     android:focusable="false"
-                    android:text="@string/latest"
                     android:hint="@string/hint_date"
-                    android:inputType="date"/>
+                    android:inputType="date"
+                    android:text="@string/latest" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
